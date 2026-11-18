@@ -362,7 +362,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   waveAnim: {fileID: 2691701501528525600}
   magnetArea: {fileID: 1709690186660379881}
-  attractionForce: 70
+  attractionForce: 150
 --- !u!114 &8886988898046366277
 MonoBehaviour:
   m_ObjectHideFlags: 0

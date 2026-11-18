@@ -1,8 +1,8 @@
+ï»¿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
-using System.Threading.Tasks;
-using System;
 
 public class StageManager : MonoBehaviour
 {
@@ -15,25 +15,28 @@ public class StageManager : MonoBehaviour
     [SerializeField] private GameObject[] stagePrefabs;
     private GameObject stagePrefab;
 
-    [Header("ƒQ[ƒ€‰æ–ÊUI")]
+    [Header("ã‚²ãƒ¼ãƒ ç”»é¢UI")]
     [SerializeField] private GameObject gameUIPanel;
     [SerializeField] private Button retryButton;
     [SerializeField] private Button startButton;
     [SerializeField] private Button menuButton;
 
-    [Header("ƒƒjƒ…[‰æ–ÊUI")]
+    [Header("ãƒ¡ãƒ‹ãƒ¥ãƒ¼ç”»é¢UI")]
     [SerializeField] private GameObject menuPanel;
     [SerializeField] private Button continueButton;
     [SerializeField] private Button menuStageSelectButton;
     [SerializeField] private Button backToTitleButton;
 
-    [Header("ƒQ[ƒ€ƒNƒŠƒA‰æ–ÊUI")]
+    [Header("ã‚²ãƒ¼ãƒ ã‚¯ãƒªã‚¢ç”»é¢UI")]
     [SerializeField] private GameObject gameClearPanel;
     [SerializeField] private Button nextStageButton;
     [SerializeField] private Button clearSelectStageButton;
     [SerializeField] private Button cleardRetryButton;
+    [SerializeField] private Image[] notClearNeji; // ã‚°ãƒ¬ãƒ¼ã®ã­ã˜ã‚’ã‚»ãƒƒãƒˆã—ã¦ã‚¯ãƒªã‚¢æ™‚éè¡¨ç¤ºã«ã™ã‚‹
+    [SerializeField] private Image[] clearComments;
+    [SerializeField] private PerfectAnimation perfectAnimation;
 
-    [Header("ƒ`ƒ…[ƒgƒŠƒAƒ‹")]
+    [Header("ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«")]
     [SerializeField] private Button tutorialButton;
     [SerializeField] private GameObject fadePanel;
 
@@ -68,7 +71,7 @@ public class StageManager : MonoBehaviour
         clearSelectStageButton.onClick.AddListener(() => sequenceManager.ChangeScene("StageSelectScene"));
 
         continueButton.onClick.AddListener(GameContinue);
-        menuStageSelectButton.onClick.AddListener(() => 
+        menuStageSelectButton.onClick.AddListener(() =>
         {
             sequenceManager.ChangeScene("StageSelectScene");
             pauseManager.GameResume();
@@ -91,24 +94,27 @@ public class StageManager : MonoBehaviour
             stagePrefab = Instantiate(stagePrefabs[stageIndex]);
         }
 
-        IStageResultNotice[] notices = stagePrefab.GetComponentsInChildren<IStageResultNotice>();
-        NejiController[] nejis = stagePrefab.GetComponentsInChildren<NejiController>();
-        doorsController = stagePrefab.GetComponentInChildren<DoorsController>();
-        TutorialObject[] tutorials = stagePrefab.GetComponentsInChildren<TutorialObject>();
+        IStageResultNotice[] notices = stagePrefab.GetComponentsInChildren<IStageResultNotice>(true); // true ã§éã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚‚
+        NejiController[] nejis = stagePrefab.GetComponentsInChildren<NejiController>(true);
+        doorsController = stagePrefab.GetComponentInChildren<DoorsController>(true);
+        TutorialObject[] tutorials = stagePrefab.GetComponentsInChildren<TutorialObject>(true);
         tutorialManager.Initialize(tutorials);
+
+        var player = stagePrefab.GetComponentInChildren<PlayerController>(true);
+        var playerCollider = player != null ? player.GetComponent<CircleCollider2D>() : null;
 
         foreach (var notice in notices)
         {
-            // ŒÄ‚Ôˆ—‚ğw“Ç
+            // å‘¼ã¶å‡¦ç†ã‚’è³¼èª­
             notice.StageFinished += GameSet;
         }
-        foreach(var neji in nejis)
+        foreach (var neji in nejis)
         {
             neji.TriggerNeji += GetNeji;
         }
         foreach (var spring in stagePrefab.GetComponentsInChildren<SpringController>(true))
         {
-            spring.Initialize(this);
+            spring.Initialize(this, playerCollider);
         }
         foreach (var magnet in stagePrefab.GetComponentsInChildren<MagnetController>(true))
         {
@@ -116,7 +122,7 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    // ƒQ[ƒ€‚ÌƒV[ƒPƒ“ƒX‚ğŠÇ—‚·‚é
+    // ã‚²ãƒ¼ãƒ ã®ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã‚’ç®¡ç†ã™ã‚‹
     private void PlayStageSequense()
     {
         getNejiCount = 0;
@@ -124,6 +130,7 @@ public class StageManager : MonoBehaviour
 
         nejiUI.enabled = false;
         fadePanel.SetActive(true);
+        perfectAnimation.AnimationStop();
         gameClearPanel.SetActive(false);
         gameUIPanel.SetActive(false);
         menuPanel.SetActive(false);
@@ -133,23 +140,23 @@ public class StageManager : MonoBehaviour
 
         pauseManager.AddPauseReason(PauseReason.StartPause);
 
-        // stage‚ğ¶¬‚·‚é
+        // stageã‚’ç”Ÿæˆã™ã‚‹
         SetStage(myStageIndex);
 
-        // ”à‚ğŠJ‚­
+        // æ‰‰ã‚’é–‹ã
 
     }
 
-    // ƒŠƒgƒ‰ƒCi“¯‚¶ƒXƒe[ƒWƒV[ƒPƒ“ƒX‚ğÄŒÄ‚Ño‚µj
+    // ãƒªãƒˆãƒ©ã‚¤ï¼ˆåŒã˜ã‚¹ãƒ†ãƒ¼ã‚¸ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã‚’å†å‘¼ã³å‡ºã—ï¼‰
     private void Retry()
     {
-        // Œ³‚ÌƒvƒŒƒnƒu‚ğíœ‚·‚é
+        // å…ƒã®ãƒ—ãƒ¬ãƒãƒ–ã‚’å‰Šé™¤ã™ã‚‹
         Destroy(stagePrefab);
 
         PlayStageSequense();
     }
 
-    // ƒXƒ^[ƒgƒ{ƒ^ƒ“‚©‚çŒÄ‚Î‚ê‚é
+    // ã‚¹ã‚¿ãƒ¼ãƒˆãƒœã‚¿ãƒ³ã‹ã‚‰å‘¼ã°ã‚Œã‚‹
     private void GameStart()
     {
         fadePanel.SetActive(false);
@@ -162,12 +169,14 @@ public class StageManager : MonoBehaviour
 
     private async void GameSet(StageResult result)
     {
-        if(result == StageResult.Clear)
+        if (result == StageResult.Clear)
         {
             Debug.Log("Clear");
+            nejiUI.enabled = false;
             fadePanel.SetActive(true);
             gameUIPanel.SetActive(false);
             gameClearPanel.SetActive(true);
+            SetClearRank(getNejiCount);
             stageProgressManager.RecordClear(myStageIndex, getNejiCount);
             getNejiCount = 0;
         }
@@ -175,7 +184,7 @@ public class StageManager : MonoBehaviour
         {
             Debug.Log("GameOver");
             doorsController.CloseDoors();
-            // ƒhƒA‚Ì•Â‚Ü‚éƒAƒjƒ[ƒVƒ‡ƒ“‚ğ‘Ò‚Âˆ—‚ğ‚±‚±‚É‘‚­
+            // ãƒ‰ã‚¢ã®é–‰ã¾ã‚‹ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å¾…ã¤å‡¦ç†ã‚’ã“ã“ã«æ›¸ã
             await Task.Delay(TimeSpan.FromSeconds(1));
             Retry();
         }
@@ -189,7 +198,7 @@ public class StageManager : MonoBehaviour
             stageProgressManager.SetNextStageIndex(nextStageIndex);
             Retry();
         }
-        Debug.Log("Ÿ‚ÌƒXƒe[ƒW‚Í‚ ‚è‚Ü‚¹‚ñ");
+        Debug.Log("æ¬¡ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã¯ã‚ã‚Šã¾ã›ã‚“");
     }
 
     private void OpenMenu()
@@ -214,18 +223,41 @@ public class StageManager : MonoBehaviour
         nejiUI.sprite = nejiImages[getNejiCount];
     }
 
-    // OnFirstContactƒ`ƒ…[ƒgƒŠƒAƒ‹‚ª”­¶‚ÉÀs
+    // OnFirstContactãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ãŒç™ºç”Ÿæ™‚ã«å®Ÿè¡Œ
     private void StartTutorial()
     {
         fadePanel.SetActive(true);
         tutorialButton.gameObject.SetActive(true);
     }
 
-    // OnFirstContactƒ`ƒ…[ƒgƒŠƒAƒ‹‚ğ‰æ–Êƒ^ƒbƒv‚ÅI—¹‚ÉÀs
+    // OnFirstContactãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã‚’ç”»é¢ã‚¿ãƒƒãƒ—ã§çµ‚äº†æ™‚ã«å®Ÿè¡Œ
     private void RemoveTutorial()
     {
         tutorialButton.gameObject.SetActive(false);
         fadePanel.SetActive(false);
         tutorialManager.RemoveTutorial();
+    }
+
+    private void SetClearRank(int rank)
+    {
+        // æœ€åˆã«ãƒªã‚»ãƒƒãƒˆ
+        foreach (var neji in notClearNeji)
+        {
+            neji.enabled = true;
+        }
+        for (int i = 0; i < clearComments.Length; i++)
+        {
+            clearComments[i].enabled = false;
+        }
+
+        for (int i = 0; i < rank; i++)
+        {
+            notClearNeji[i].enabled = false;
+        }
+
+        bool isPerfect = rank == 3;
+        perfectAnimation.gameObject.SetActive(isPerfect);
+        if (isPerfect) perfectAnimation.AnimationStart();
+        clearComments[rank].enabled = true;
     }
 }
