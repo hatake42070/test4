@@ -5,7 +5,7 @@ public class PerfectAnimation : MonoBehaviour
 {
     private Image circleImage;
     private bool animationStart;
-    RectTransform rectTransform;
+    private RectTransform rectTransform;
 
     private void Awake()
     {

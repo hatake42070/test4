@@ -48,6 +48,10 @@ public class StageManager : MonoBehaviour
     private DoorsController doorsController;
     public bool CanOperateGimmicks => !fadePanel.activeInHierarchy;
 
+    private PlayerController player;
+    private bool isStageFinished;
+    private GirlfriendController girl;
+
 
     [Inject]
     public void Construct(StageProgressManager stageProgressManager, SequenceManager sequenceManager, PauseManager pauseManager, TutorialManager tutorialManager)
@@ -100,8 +104,9 @@ public class StageManager : MonoBehaviour
         TutorialObject[] tutorials = stagePrefab.GetComponentsInChildren<TutorialObject>(true);
         tutorialManager.Initialize(tutorials);
 
-        var player = stagePrefab.GetComponentInChildren<PlayerController>(true);
+        player = stagePrefab.GetComponentInChildren<PlayerController>(true);
         var playerCollider = player != null ? player.GetComponent<CircleCollider2D>() : null;
+        girl = stagePrefab.GetComponentInChildren<GirlfriendController>(true);
 
         foreach (var notice in notices)
         {
@@ -125,6 +130,7 @@ public class StageManager : MonoBehaviour
     // ゲームのシーケンスを管理する
     private void PlayStageSequense()
     {
+        isStageFinished = false;
         getNejiCount = 0;
         nejiUI.sprite = nejiImages[getNejiCount];
 
@@ -167,14 +173,22 @@ public class StageManager : MonoBehaviour
         nejiUI.enabled = true;
     }
 
-    private async void GameSet(StageResult result)
+    private async void GameSet(StageResult result, Vector2 direction)
     {
+        if (isStageFinished) return;
+        isStageFinished = true;
+
         if (result == StageResult.Clear)
         {
             Debug.Log("Clear");
             nejiUI.enabled = false;
-            fadePanel.SetActive(true);
             gameUIPanel.SetActive(false);
+
+            // ころりアニメーション待機
+            if (player != null) player.GoalAnimation(girl.transform);
+            await Task.Delay(TimeSpan.FromSeconds(2.5));
+
+            fadePanel.SetActive(true);
             gameClearPanel.SetActive(true);
             SetClearRank(getNejiCount);
             stageProgressManager.RecordClear(myStageIndex, getNejiCount);
@@ -183,6 +197,8 @@ public class StageManager : MonoBehaviour
         else
         {
             Debug.Log("GameOver");
+            if (player != null) player.DeathAnimation(direction);
+            await Task.Delay(TimeSpan.FromSeconds(1));
             doorsController.CloseDoors();
             // ドアの閉まるアニメーションを待つ処理をここに書く
             await Task.Delay(TimeSpan.FromSeconds(1));

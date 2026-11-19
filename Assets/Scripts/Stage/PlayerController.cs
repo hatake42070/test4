@@ -1,6 +1,93 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // Å‰‚ÉƒRƒƒŠ‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ğÄ¶‚µA•¨—‹““®‚ğ~‚ß‚é
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private bool startFacingRight;
+    [SerializeField] private float knockbackImpulse = 3f;
+    private Rigidbody2D playerRb;
+    private Animator playerAnimator;
+    private Transform playerTransform;
+
+    private void Awake()
+    {
+        playerRb = GetComponent<Rigidbody2D>();
+        playerRb.simulated = false;
+        playerAnimator = GetComponent<Animator>();
+        playerTransform = GetComponent<Transform>();
+        AnimatorReset();
+        SetFacing(startFacingRight);
+    }
+
+    private void SetFacing(bool startFacingRight)
+    {
+        spriteRenderer.flipX = startFacingRight;
+    }
+
+    public void RigidOn()
+    {
+        playerRb.simulated = true;
+    }
+    public void RigidOFF()
+    {
+        playerRb.simulated = false;
+    }
+
+    private void AnimatorReset()
+    {
+        if (playerAnimator == null) return;
+        playerAnimator.SetBool("death_flag", false);
+        playerAnimator.SetBool("goal_flag", false);
+        playerAnimator.SetBool("right_goal_flag", false);
+
+    }
+
+    public void GoalAnimation(Transform target)
+    {
+        // girlfriendã®å ´æ‰€ã§å·¦å³åè»¢ã™ã‚‹
+        FaceTarget(target);
+
+        if (playerAnimator == null) return;
+        // ä½“ã®å‘ãã‚’æ­£ã—ã¦ç‰©ç†ã‚’OFFã«ã™ã‚‹
+        playerRb.simulated = false;
+        playerTransform.rotation = Quaternion.identity;
+
+        playerAnimator.SetBool("goal_flag", true);
+    }
+
+    public void DeathAnimation(Vector2 direction)
+    {
+        // ç§»å‹•ã¨å›è»¢ã®å‹¢ã„ã‚’ãƒªã‚»ãƒƒãƒˆ
+        playerRb.linearVelocity = Vector2.zero;
+        playerRb.angularVelocity = 0f;
+
+        playerRb.AddForce(direction * knockbackImpulse, ForceMode2D.Impulse);
+        if (playerAnimator == null) return;
+
+        playerAnimator.SetBool("death_flag", true);
+    }
+
+    //public void StopKnockback()
+    //{
+    //    playerRb.linearVelocity =
+    //        new Vector2(0f, playerRb.linearVelocity.y);
+
+    //    playerRb.angularVelocity = 0f;
+    //}
+
+    // ã‚´ãƒ¼ãƒ«æ™‚ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®å‘ãã‚’æ±ºã‚ã‚‹
+    private void FaceTarget(Transform target)
+    {
+        float differenceX = target.position.x - transform.position.x;
+        if (differenceX <= 0)
+        {
+            startFacingRight = false;
+            SetFacing(startFacingRight);
+        }
+        else
+        {
+            startFacingRight = true;
+            SetFacing(startFacingRight);
+        }
+    }
 }

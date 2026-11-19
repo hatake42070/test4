@@ -1,13 +1,14 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 
-public enum StageResult{
+public enum StageResult
+{
     Clear,
     GameOver
 }
 
-// ƒQ[ƒ€‚ÌŒ‹‰Ê‚É’¼Ú‰e‹¿‚ğ—^‚¦‚éˆ—
+// ã‚²ãƒ¼ãƒ ã®çµæœã«ç›´æ¥å½±éŸ¿ã‚’ä¸ãˆã‚‹å‡¦ç†
 public interface IStageResultNotice
 {
-    event Action<StageResult> StageFinished;
+    event Action<StageResult, Vector2> StageFinished;
 }

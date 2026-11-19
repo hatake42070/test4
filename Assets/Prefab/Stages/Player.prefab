@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4876661289613314618}
   - component: {fileID: 8602350661453123899}
   - component: {fileID: 2393373930097263325}
+  - component: {fileID: 3684463726567854086}
   - component: {fileID: -7792125469218858063}
   m_Layer: 0
   m_Name: Player
@@ -29,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 8006805342748298547}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.56, y: 3.98, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -79,12 +80,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 10
-  m_Sprite: {fileID: 4058086304753377484, guid: 62e04e312e2929742b3bf668cfe094a1, type: 3}
+  m_Sprite: {fileID: -5954979034223226568, guid: 3af2e1550f8927b4a8bab5584fa77cb9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.32, y: 1.39}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -125,7 +126,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.9
+  m_Radius: 0.7
 --- !u!50 &2393373930097263325
 Rigidbody2D:
   serializedVersion: 5
@@ -153,6 +154,28 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!95 &3684463726567854086
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8006805342748298547}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 73b52812127702344aa8435f5593006c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &-7792125469218858063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,3 +188,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b2466f10176de041bfa4aef52ff72a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 0}
+  startFacingRight: 0
+  knockbackImpulse: 4
